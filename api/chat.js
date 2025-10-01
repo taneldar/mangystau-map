@@ -8,11 +8,14 @@ export default async function handler(req, res) {
     const apiKey = process.env.GOOGLE_API_KEY;
     if (!apiKey) return res.status(500).json({ error: "Missing GOOGLE_API_KEY" });
 
-    // ✅ v1 endpoint
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // 🔹 Ескі "gemini-pro" моделін қолданамыз
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`;
 
     const contents = [
-      ...history.map(m => ({ role: m.role === "user" ? "user" : "model", parts: [{ text: String(m.content || "") }] })),
+      ...history.map(m => ({
+        role: m.role === "user" ? "user" : "model",
+        parts: [{ text: String(m.content || "") }]
+      })),
       { role: "user", parts: [{ text: String(message) }] }
     ];
 
@@ -26,16 +29,16 @@ export default async function handler(req, res) {
     console.log("Gemini response:", JSON.stringify(data, null, 2));
 
     if (!r.ok) {
-      const errMsg = data?.error?.message || `HTTP ${r.status} ${r.statusText}`;
-      return res.status(200).json({ answer: `Қате: ${errMsg}` });
+      return res.status(200).json({ answer: `Қате: ${data?.error?.message || "API error"}` });
     }
 
     let answer = "Кешіріңіз, жауап табылмады.";
     const parts = data?.candidates?.[0]?.content?.parts;
     if (Array.isArray(parts) && parts.length) {
-      const texts = parts.map(p => (typeof p.text === "string" ? p.text : "")).filter(Boolean);
+      const texts = parts.map(p => p.text || "").filter(Boolean);
       if (texts.length) answer = texts.join("\n");
     }
+
     res.status(200).json({ answer });
   } catch (e) {
     console.error("API error:", e);
