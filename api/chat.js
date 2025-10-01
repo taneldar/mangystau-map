@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     if (!apiKey) return res.status(500).json({ error: "Missing GOOGLE_API_KEY" });
 
     // ✅ Нақты модельді қолданамыз
-    const url = `https://us-central1-aiplatform.googleapis.com/v1/projects/${process.env.GOOGLE_CLOUD_PROJECT_ID}/locations/us-central1/publishers/google/models/gemini-pro:generateContent?key=${apiKey}`;
+   const url = `https://us-central1-aiplatform.googleapis.com/v1/projects/${process.env.GOOGLE_CLOUD_PROJECT_ID}/locations/us-central1/publishers/google/models/gemini-pro:generateContent?key=${apiKey}`;
 
     const contents = [
       ...history.map(m => ({
